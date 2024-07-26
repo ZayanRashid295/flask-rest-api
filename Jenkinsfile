@@ -1,30 +1,25 @@
 pipeline {
-    agent any
+    agent {
+        label 'docker-agent' // Node with Docker installed
+    }
 
     environment {
-        DOCKER_CREDENTIALS_ID = 'your-dockerhub-credentials-id' // Docker credentials ID from Jenkins
-        DOCKER_IMAGE = 'zayan/flask-api' // Docker Hub image name
+        DOCKER_CREDENTIALS_ID = 'your-dockerhub-credentials-id'
+        DOCKER_IMAGE = 'zayan/flask-api'
         DOCKER_REGISTRY_URL = 'https://index.docker.io/v1/'
     }
 
     stages {
         stage('Checkout Code') {
             steps {
-                script {
-                    // Set the correct directory for cloning the repository
-                    dir('/var/jenkins_home/workspace/Deploy-Flask-API') {
-                        checkout scm
-                    }
-                }
+                checkout scm
             }
         }
 
         stage('Build Docker image') {
             steps {
-                dir('/var/jenkins_home/workspace/Deploy-Flask-API') {
-                    script {
-                        docker.build("${DOCKER_IMAGE}:${env.BUILD_NUMBER}")
-                    }
+                script {
+                    docker.build("${DOCKER_IMAGE}:${env.BUILD_NUMBER}")
                 }
             }
         }
@@ -41,7 +36,7 @@ pipeline {
 
         stage('Deploy Docker containers') {
             steps {
-                sshagent (credentials: ['your-ssh-credentials-id']) { // SSH credentials ID from Jenkins
+                sshagent (credentials: ['your-ssh-credentials-id']) {
                     sh '''
                     ssh -o StrictHostKeyChecking=no zayan@your-vps-ip << EOF
                     cd /path/to/your/project
