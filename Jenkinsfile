@@ -2,18 +2,18 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_CREDENTIALS_ID = 'dockerhub-credentials' // Docker credentials ID from Jenkins
-        DOCKER_IMAGE = 'your-dockerhub-username/flask-api' // Docker Hub image name
+        DOCKER_CREDENTIALS_ID = 'your-dockerhub-credentials-id' // Docker credentials ID from Jenkins
+        DOCKER_IMAGE = 'zayan/flask-api' // Docker Hub image name
         DOCKER_REGISTRY_URL = 'https://index.docker.io/v1/'
     }
 
     stages {
-        stage('Clone repository') {
+        stage('Checkout Code') {
             steps {
-                dir('/Users/Zayan Rashid/Desktop/Flask') {
-                    script {
-                        // Assuming git clone has already been done locally
-                        sh 'git pull'
+                script {
+                    // Set the correct directory for cloning the repository
+                    dir('/var/jenkins_home/workspace/Deploy-Flask-API') {
+                        checkout scm
                     }
                 }
             }
@@ -21,7 +21,7 @@ pipeline {
 
         stage('Build Docker image') {
             steps {
-                dir('/Users/Zayan Rashid/Desktop/flask') {
+                dir('/var/jenkins_home/workspace/Deploy-Flask-API') {
                     script {
                         docker.build("${DOCKER_IMAGE}:${env.BUILD_NUMBER}")
                     }
@@ -41,9 +41,9 @@ pipeline {
 
         stage('Deploy Docker containers') {
             steps {
-                sshagent (credentials: ['vps-ssh-credentials']) { // SSH credentials ID from Jenkins
+                sshagent (credentials: ['your-ssh-credentials-id']) { // SSH credentials ID from Jenkins
                     sh '''
-                    ssh -o StrictHostKeyChecking=no user@your-vps-ip << EOF
+                    ssh -o StrictHostKeyChecking=no zayan@your-vps-ip << EOF
                     cd /path/to/your/project
                     docker-compose down
                     docker-compose pull
