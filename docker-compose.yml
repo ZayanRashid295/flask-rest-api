@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  flask-api:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=development
+
+  minio:
+    image: minio/minio
+    environment:
+      MINIO_ACCESS_KEY: SGUQ9tbnE7euXxRhh7Oi
+      MINIO_SECRET_KEY: fUA62XKgE9MYttmPmVSRN9HnHI1gb26id3FRUPSD
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    command: server /data
+
+  nextcloud:
+    image: nextcloud
+    ports:
+      - "8081:80"
